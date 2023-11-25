@@ -1,0 +1,25 @@
+   
+{
+    "author": {
+      "name": "Ilfat Galiev",
+      "email": "ilfat.galiev@zbritva.com"
+    },
+    "visual": {
+      "name": "HTML/SVG/Handlebars Visual",
+      "displayName": "HTML/SVG/Handlebars Visual",
+      "guid": "handlebarsVisual",
+      "visualClassName": "Visual",
+      "version": "1.0.0.0",
+      "description": "Integrate Handlebars template render into Power BI",
+      "supportUrl": "https://github.com/zBritva/echarts-powerbi-docs/issues",
+      "gitHubUrl": "https://github.com/zBritva/echarts-powerbi-docs"
+    },
+    "apiVersion": "5.4.0",
+    "assets": {
+      "icon": "assets/icon.png"
+    },
+    "externalJS": [],
+    "style": "style/visual.scss",
+    "capabilities": "capabilities.json",
+    "stringResources": []
+  }
