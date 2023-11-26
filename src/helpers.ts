@@ -25,6 +25,8 @@ const scales = new Map<string, {
 
 const axes = new Map<string, Axis<unknown>>()
 
+const variables = new Map<string, number | string | Date | boolean>()
+
 const axisFunctions = { axisBottom, axisLeft, axisRight, axisTop }
 
 Handlebars.registerHelper('format', function (context: unknown, formatString: unknown) {
@@ -225,6 +227,64 @@ Handlebars.registerHelper('setupAxis', function (
     const axis = axes.get(id);
     if (axis) {
         args.pop();
-        axis[method].call(axis, args);
+        if (method === 'tickFormat') {
+            debugger
+            axis.tickFormat(format(args[0]));
+        } else {
+            axis[method].call(axis, args);
+        }
+    }
+})
+
+Handlebars.registerHelper('sum', function (
+    a: number,
+    b: number
+) {
+    return a + b
+})
+
+Handlebars.registerHelper('sub', function (
+    a: number,
+    b: number
+) {
+    return a - b
+})
+
+Handlebars.registerHelper('multiply', function (
+    a: number,
+    b: number
+) {
+    return a * b
+})
+
+Handlebars.registerHelper('divide', function (
+    a: number,
+    b: number
+) {
+    return a / b
+})
+
+Handlebars.registerHelper('var', function (
+    name: string,
+    value: number
+) {
+    variables.set(name, value)
+})
+
+Handlebars.registerHelper('val', function (
+    name: string
+) {
+    return variables.get(name)
+})
+
+Handlebars.registerHelper('math', function (
+    method: string,
+    ...args: any[]
+) {
+    args.pop()
+    if (args.length) {
+        return Math[method].call(Math, args)
+    } else {
+        return Math[method]
     }
 })

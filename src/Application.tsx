@@ -38,14 +38,10 @@ export const Application: React.FC<ApplicationProps> = () => {
 
     const table = React.useMemo(() => convertData(dataView), [dataView, convertData]);
 
-    console.log('context', table)
-
     const content = React.useMemo(() => template({
         table,
         viewport
     }), [table, template])
-
-    console.log('content', content)
 
     const clean = React.useMemo(() => sanitizeHTML(content), [content, sanitizeHTML])
 
@@ -55,7 +51,7 @@ export const Application: React.FC<ApplicationProps> = () => {
                 style={{
                     width: viewport.width,
                     height: viewport.height,
-                    overflow: 'scroll'
+                    // overflow: 'scroll'
                 }}
                 dangerouslySetInnerHTML={{
                     __html: clean
