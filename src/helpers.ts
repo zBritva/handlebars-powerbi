@@ -223,6 +223,18 @@ Handlebars.registerHelper('setupAxis', function (
     }
 })
 
+Handlebars.registerHelper('getScale', function (
+    id: string,
+    method: string,
+    ...args: any
+) {
+    const scale = scales.get(id);
+    if (scale) {
+        args.pop();
+        return scale[method].call(scale, ...args);
+    }
+})
+
 Handlebars.registerHelper('setupScale', function (
     id: string,
     method: string,
