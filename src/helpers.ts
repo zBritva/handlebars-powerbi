@@ -36,11 +36,8 @@ export type ScaleType = 'linear' | 'band' | 'log' | 'ordinal';
 export type Scale = ScaleLinear<number, number> | ScaleLogarithmic<number, number> | ScaleBand<string> | ScaleOrdinal<string, number>
 
 const scales = new Map<string, Scale>()
-
 const axes = new Map<string, Axis<unknown>>()
-
 const variables = new Map<string, number | string | Date | boolean>()
-
 const axisFunctions = { axisBottom, axisLeft, axisRight, axisTop }
 
 const scaleFunctions = {
@@ -57,6 +54,20 @@ const scaleFunctions = {
     scaleTime,
     scaleRadial
 }
+
+export function hardReset() {
+    axes.clear();
+    scales.clear();
+    variables.clear();
+}
+
+Handlebars.registerHelper('resetScales', function () {
+    scales.clear();
+});
+
+Handlebars.registerHelper('resetAxes', function () {
+    axes.clear();
+});
 
 Handlebars.registerHelper('format', function (context: unknown, formatString: unknown) {
     if (context === null) {
@@ -209,6 +220,18 @@ Handlebars.registerHelper('setupAxis', function (
         } else {
             axis[method].call(axis, ...args);
         }
+    }
+})
+
+Handlebars.registerHelper('setupScale', function (
+    id: string,
+    method: string,
+    ...args: any
+) {
+    const scale = scales.get(id);
+    if (scale) {
+        args.pop();
+        scale[method].call(scale, ...args);
     }
 })
 

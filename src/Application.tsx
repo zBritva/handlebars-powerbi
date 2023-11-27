@@ -10,6 +10,7 @@ import { convertData, sanitizeHTML } from './utils';
 import Handlebars from "handlebars";
 
 import './helpers';
+import { hardReset } from './helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApplicationProps {
@@ -20,7 +21,7 @@ export const Application: React.FC<ApplicationProps> = () => {
 
     // const settings = useAppSelector((state) => state.options.settings);
     // const option = useAppSelector((state) => state.options.options);
-    // const host = useAppSelector((state) => state.options.host);
+    const host = useAppSelector((state) => state.options.host);
 
     const dataView = useAppSelector((state) => state.options.dataView);
     const viewport = useAppSelector((state) => state.options.viewport);
@@ -38,10 +39,17 @@ export const Application: React.FC<ApplicationProps> = () => {
 
     const table = React.useMemo(() => convertData(dataView), [dataView, convertData]);
 
-    const content = React.useMemo(() => template({
-        table,
-        viewport
-    }), [table, viewport, template])
+    const content = React.useMemo(() => {
+        hardReset()
+        Handlebars.unregisterHelper('useColor')
+        Handlebars.registerHelper('useColor', function (val: string) {
+            return host.colorPalette.getColor(val).value
+        });
+        return template({
+            table,
+            viewport
+        })
+    }, [host, table, viewport, template])
 
     const clean = React.useMemo(() => sanitizeHTML(content), [content, sanitizeHTML])
 
