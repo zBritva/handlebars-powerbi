@@ -123,3 +123,7 @@ export function convertData(dataView: DataView): Table {
 
     return table;
 }
+
+export function deepClone(object: unknown) {
+    return JSON.parse(JSON.stringify(object))
+}

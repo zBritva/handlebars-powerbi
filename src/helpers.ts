@@ -9,7 +9,24 @@ import { select } from "d3-selection";
 
 import { axisBottom, axisLeft, axisRight, axisTop, Axis } from "d3-axis";
 
-import { scaleLinear, scaleBand, scaleLog, scaleOrdinal, ScaleLinear, ScaleBand, ScaleOrdinal, ScaleLogarithmic } from "d3-scale";
+import { 
+    scaleLinear,
+    scaleBand,
+    scaleLog,
+    scaleOrdinal,
+    ScaleLinear,
+    ScaleBand,
+    ScaleOrdinal,
+    ScaleLogarithmic,
+    scalePoint,
+    scalePow,
+    scaleQuantize,
+    scaleDiverging,
+    scaleTime,
+    scaleThreshold,
+    scaleRadial,
+    scaleSequential
+} from "d3-scale";
 
 const dateFormats = new Map<string, (date: Date) => string>()
 const utcFormats = new Map<string, (date: Date) => string>()
@@ -18,16 +35,28 @@ const numberFormats = new Map<string, (date: number) => string>()
 export type ScaleType = 'linear' | 'band' | 'log' | 'ordinal';
 export type Scale = ScaleLinear<number, number> | ScaleLogarithmic<number, number> | ScaleBand<string> | ScaleOrdinal<string, number>
 
-const scales = new Map<string, {
-    scale: Scale,
-    type: ScaleType
-}>()
+const scales = new Map<string, Scale>()
 
 const axes = new Map<string, Axis<unknown>>()
 
 const variables = new Map<string, number | string | Date | boolean>()
 
 const axisFunctions = { axisBottom, axisLeft, axisRight, axisTop }
+
+const scaleFunctions = {
+    scaleBand,
+    scaleLinear,
+    scaleLog,
+    scaleOrdinal,
+    scaleDiverging,
+    scalePoint,
+    scaleQuantize,
+    scalePow,
+    scaleSequential,
+    scaleThreshold,
+    scaleTime,
+    scaleRadial
+}
 
 Handlebars.registerHelper('format', function (context: unknown, formatString: unknown) {
     if (context === null) {
@@ -91,87 +120,21 @@ Handlebars.registerHelper('timeFormat', function (context: unknown, formatString
     }
 })
 
-Handlebars.registerHelper('scale', function (
-    id: string,
-    type: ScaleType,
-    ...args: unknown[]) {
-    if (typeof id === 'string' && id !== '') {
-        switch (type) {
-            case 'linear': {
-                const [domain1, domain2, range1, range2] = args as number[]
-                const scale = scaleLinear([domain1, domain2], [range1, range2]) as Scale
-                scales.set(id, {
-                    scale,
-                    type
-                })
-            }
-                break;
-            case 'log': {
-                const [domain1, domain2, range1, range2] = args as number[]
-                const scale = scaleLog([domain1, domain2], [range1, range2]) as Scale
-                scales.set(id, {
-                    scale,
-                    type
-                })
-            }
-                break;
-            case 'band': {
-                const [domain, range1, range2] = args;
-                const scale = scaleBand(<string[]>domain, [<number>range1, <number>range2])
-                scales.set(id, {
-                    scale,
-                    type
-                })
-            }
-                break;
-            case 'ordinal': {
-                const [domain, range1, range2] = args;
-                const scale = scaleOrdinal(<string[]>domain, [<number>range1, <number>range2])
-                scales.set(id, {
-                    scale,
-                    type
-                })
-            }
-                break;
-            default:
-                break;
-        }
-    } else {
-        return 'Wrong scale ID'
-    }
-    return ''
-})
-
 Handlebars.registerHelper('useScale', function (
     id: string,
-    context: unknown
+    ...args: unknown[]
 ) {
     if (typeof id === 'string' && id !== '' && scales.has(id)) {
         const scale = scales.get(id);
-        switch (scale.type) {
-            case "linear":
-                (scale.scale as ScaleLinear<number, number>)(context as number)
-                break;
-            case "log":
-                (scale.scale as ScaleLogarithmic<number, number>)(context as number)
-                break;
-            case "band":
-                (scale.scale as ScaleBand<string>)(context as string)
-                break;
-            case "ordinal":
-                (scale.scale as ScaleOrdinal<string, number>)(context as string)
-                break;
-            default:
-                break;
-        }
-        return scale.scale(context as any);
+        return scale.call(scale, ...args)
     } else {
         return 'Wrong scale ID'
     }
 })
 
 Handlebars.registerHelper('array', (...options) => {
-    return options.pop();
+    options.pop()
+    return options
 })
 
 Handlebars.registerHelper('map', (key, array) => {
@@ -201,8 +164,22 @@ for (const axisFunc in axisFunctions) {
     Handlebars.registerHelper(axisFunc, (id, scaleID) => {
         if (scales.has(scaleID)) {
             const scale = scales.get(scaleID)
-            const axis = axisFunctions[axisFunc](scale.scale)
+            const axis = axisFunctions[axisFunc](scale)
             axes.set(id, axis)
+        }  else {
+            return `Scale ${scaleID} not found`
+        }
+    })
+}
+
+for (const scaleFunc in scaleFunctions) {
+    Handlebars.registerHelper(scaleFunc, (id: string, ...args: unknown[]) => {
+        if (!scales.has(id)) {
+            args.pop();
+            const scale = scaleFunctions[scaleFunc].call(axisFunctions[scaleFunc], ...args)
+            scales.set(id, scale)
+        } else {
+            return 'Scale redeclared'
         }
     })
 }
@@ -228,10 +205,9 @@ Handlebars.registerHelper('setupAxis', function (
     if (axis) {
         args.pop();
         if (method === 'tickFormat') {
-            debugger
             axis.tickFormat(format(args[0]));
         } else {
-            axis[method].call(axis, args);
+            axis[method].call(axis, ...args);
         }
     }
 })

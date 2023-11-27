@@ -41,7 +41,7 @@ export const Application: React.FC<ApplicationProps> = () => {
     const content = React.useMemo(() => template({
         table,
         viewport
-    }), [table, template])
+    }), [table, viewport, template])
 
     const clean = React.useMemo(() => sanitizeHTML(content), [content, sanitizeHTML])
 
