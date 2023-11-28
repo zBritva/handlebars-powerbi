@@ -73,7 +73,7 @@ export class Visual implements IVisual {
     }
 
     public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
-        if (options.objectName === 'chart') {
+        if (options.objectName === 'template') {
             return <VisualObjectInstance[]>[
                 {
                     objectName: options.objectName,
