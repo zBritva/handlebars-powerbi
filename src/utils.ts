@@ -12,9 +12,75 @@ export const defaultDompurifyConfig = <DompurifyConfig>{
     SANITIZE_DOM: true,
     ALLOW_ARIA_ATTR: true,
     ALLOW_UNKNOWN_PROTOCOLS: false,
+    USE_PROFILES: {svg: true, svgFilters: true, html: true, mathMl: false},
     // ALLOWED_TAGS: [],
-    FORBID_ATTR: ['href', 'url'],
-    FORBID_TAGS: ['script', 'iframe', 'object', 'param', 'source', 'video'], 
+    FORBID_ATTR: [
+        'href',
+        'url',
+        'onafterprint',
+        'onbeforeprint',
+        'onbeforeunload',
+        'onerror',
+        'onhashchange',
+        'onload',
+        'onmessage',
+        'onoffline',
+        'ononline',
+        'onpagehide',
+        'onpageshow',
+        'onpopstate',
+        'onresize',
+        'onstorage',
+        'onunload',
+        'onblur',
+        'onchange',
+        'onfocus',
+        'oninput',
+        'oninvalid',
+        'onreset',
+        'onsearch',
+        'onselect',
+        'onsubmit',
+        'onkeydown',
+        'onkeypress',
+        'onkeyup',
+        'onclick',
+        'ondblclick',
+        'onmousedown',
+        'onmousemove',
+        'onmouseout',
+        'onmouseover',
+        'onmouseup',
+        'onmousewheel',
+        'onwheel',
+        'oncopy',
+        'oncut',
+        'onpaste',
+        'onabort',
+        'oncanplay',
+        'oncanplaythrough',
+        'oncuechange',
+        'ondurationchange',
+        'onemptied',
+        'onended',
+        'onerror',
+        'onloadeddata',
+        'onloadedmetadata',
+        'onloadstart',
+        'onpause',
+        'onplay',
+        'onplaying',
+        'onprogress',
+        'onratechange',
+        'onseeked',
+        'onseeking',
+        'onstalled',
+        'onsuspend',
+        'ontimeupdate',
+        'onvolumechange',
+        'onwaiting',
+    ],
+    FORBID_TAGS: ['script', 'iframe', 'object', 'param', 'source', 'video'],
 };
 
 export type Column = Pick<DataViewMetadataColumn, "displayName" | "index">;
@@ -34,7 +100,7 @@ export function safeParse(echartJson: string): any {
 
     try {
         chart = echartJson ? JSON.parse(echartJson) : {};
-    } catch(e) {
+    } catch (e) {
         console.log(e.message);
     }
 
@@ -86,7 +152,7 @@ export function walk(key: string, tree: Record<string, unknown | unknown[]> | un
                 walk(key, tree[key], apply);
             }
         }
-        
+
     }
 }
 

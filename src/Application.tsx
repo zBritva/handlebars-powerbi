@@ -12,6 +12,9 @@ import Handlebars from "handlebars";
 import './helpers';
 import { hardReset } from './helpers';
 
+import { ErrorBoundary } from './Error';
+
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApplicationProps {
 }
@@ -45,27 +48,33 @@ export const Application: React.FC<ApplicationProps> = () => {
         Handlebars.registerHelper('useColor', function (val: string) {
             return host.colorPalette.getColor(val).value
         });
-        return template({
-            table,
-            viewport
-        })
+        try {
+            return template({
+                table,
+                viewport
+            })
+        } catch (err) {
+            return `<h4>${err.message}</h4><pre>${err.stack}</pre>`
+        }
     }, [host, table, viewport, template])
 
     const clean = React.useMemo(() => sanitizeHTML(content), [content, sanitizeHTML])
 
     return (<>
         <>
-            <div
-                style={{
-                    width: viewport.width,
-                    height: viewport.height,
-                    // overflow: 'scroll'
-                }}
-                dangerouslySetInnerHTML={{
-                    __html: clean
-                }}
-                >
-            </div>
+            <ErrorBoundary>
+                <div
+                    style={{
+                        width: viewport.width,
+                        height: viewport.height,
+                        // overflow: 'scroll'
+                    }}
+                    dangerouslySetInnerHTML={{
+                        __html: clean
+                    }}
+                    >
+                </div>
+            </ErrorBoundary>
         </>
     </>)
     
