@@ -1,7 +1,9 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import PrimitiveValue = powerbiVisualsApi.PrimitiveValue;
 import DataView = powerbiVisualsApi.DataView;
+import ISelectionId = powerbiVisualsApi.visuals.ISelectionId;
 import DataViewMetadataColumn = powerbiVisualsApi.DataViewMetadataColumn;
+import IVisualHost = powerbiVisualsApi.extensibility.visual.IVisualHost;
 
 import { utcParse } from "d3-time-format";
 
@@ -11,6 +13,9 @@ export const defaultDompurifyConfig = <DompurifyConfig>{
     RETURN_DOM: false,
     SANITIZE_DOM: true,
     ALLOW_ARIA_ATTR: true,
+    ALLOWED_ATTR: [
+        'data-*'
+    ],
     ALLOW_UNKNOWN_PROTOCOLS: false,
     USE_PROFILES: {svg: true, svgFilters: true, html: true, mathMl: false},
     // ALLOWED_TAGS: [],
@@ -85,9 +90,13 @@ export const defaultDompurifyConfig = <DompurifyConfig>{
 
 export type Column = Pick<DataViewMetadataColumn, "displayName" | "index">;
 
+export interface Row {
+    [key: string]: PrimitiveValue | ISelectionId
+    selection?: ISelectionId
+}
 
 export interface Table {
-    rows: Record<string, PrimitiveValue>[];
+    rows: Row[];
     columns: Column[];
 }
 
@@ -157,7 +166,7 @@ export function walk(key: string, tree: Record<string, unknown | unknown[]> | un
 }
 
 
-export function convertData(dataView: DataView): Table {
+export function convertData(dataView: DataView, host?: IVisualHost): Table {
     const table: Table = {
         rows: [],
         columns: []
@@ -168,9 +177,15 @@ export function convertData(dataView: DataView): Table {
     }
 
     const dateParse = utcParse('%Y-%m-%dT%H:%M:%S.%LZ');
-    dataView.table.rows.forEach(data => {
-        const row = {};
-
+    dataView.table.rows.forEach((data, rowIndex) => {
+        const selection = host
+            ?.createSelectionIdBuilder()
+            .withTable(dataView.table, rowIndex)
+            .createSelectionId();
+        
+        const row = {
+            selection
+        };
         dataView.table.columns.forEach((col, index) => {
             if (col.type.dateTime || col.type.temporal) {
                 row[col.displayName] = dateParse(data[index] as string);

@@ -32,22 +32,88 @@ export const Application: React.FC<ApplicationProps> = () => {
 
     // const dispatch = useAppDispatch();
 
+    const selectionManager = React.useMemo(() => {
+        return host.createSelectionManager();
+    }, [host]);
+
     const template = React.useMemo(() => {
         return Handlebars.compile(templateSource);
     }, [templateSource]);
 
-    React.useEffect(() => {
-        
-    }, []);
+    const table = React.useMemo(() => convertData(dataView, host), [dataView, convertData, host])
 
-    const table = React.useMemo(() => convertData(dataView), [dataView, convertData]);
+    React.useEffect(() => {
+        const clickableElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection=true],[data-selection=false]')
+        const selectionClear = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection-clear=true]')
+        
+        const clearHandlers = []
+        selectionClear.forEach(clear => {
+            const handler = clear.addEventListener('click', (e) => {
+                selectionManager.clear().then(() => {
+                    clickableElements.forEach(e => e.setAttribute('data-selection', 'true'))
+                })
+                e.preventDefault()
+                e.stopPropagation()
+            })
+
+            clearHandlers.push(handler)
+        })
+
+        const selectionHandlers = []
+        clickableElements.forEach(element => {
+
+            const handler = element.addEventListener('click', function (e) {
+                const dataIndex = element.getAttribute('data-index')
+                if (table.rows[dataIndex]) {
+                    const selection = table.rows[dataIndex].selection
+                    selectionManager
+                        .select(selection)
+                        .then(selections => {
+                            if (selections.length === 0) {
+                                clickableElements.forEach(e => e.setAttribute('data-selection', 'true'))
+                            } else {
+                                // reset all
+                                clickableElements.forEach(e => e.setAttribute('data-selection', 'false'))
+                                // set selected
+                                element.setAttribute('data-selection', 'true')
+                            }
+                        })
+                    e.preventDefault()
+                    e.stopPropagation()
+                }
+            })
+
+            selectionHandlers.push(handler)
+        })
+
+        return () => {
+            clickableElements.forEach((element, index) => {
+                element.removeEventListener('click', selectionHandlers[index])
+            })
+            selectionClear.forEach((element, index) => {
+                element.removeEventListener('click', clearHandlers[index])
+            })
+        }
+    }, [host, table, selectionManager])
+
+    console.log('table.rows.length', table.rows.length)
 
     const content = React.useMemo(() => {
         hardReset()
         Handlebars.unregisterHelper('useColor')
         Handlebars.registerHelper('useColor', function (val: string) {
             return host.colorPalette.getColor(val).value
-        });
+        })
+        Handlebars.unregisterHelper('useSelection')
+        Handlebars.registerHelper('useSelection', function (index: number) {
+            if (table.rows[index] && typeof index === 'number') {
+                return `data-selection=true data-index="${index}"`
+            }
+        })
+        Handlebars.unregisterHelper('useSelectionClear')
+        Handlebars.registerHelper('useSelectionClear', function () {
+            return `data-selection-clear="true"`
+        })
         try {
             return template({
                 table,
@@ -72,11 +138,11 @@ export const Application: React.FC<ApplicationProps> = () => {
                     dangerouslySetInnerHTML={{
                         __html: clean
                     }}
-                    >
+                >
                 </div>
             </ErrorBoundary>
         </>
     </>)
-    
+
 }
 
