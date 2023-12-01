@@ -164,7 +164,7 @@ Handlebars.registerHelper('mean', (array) => {
 Handlebars.registerHelper('median', (array) => {
     return median(array)
 })
-Handlebars.registerHelper('sum', (array) => {
+Handlebars.registerHelper('sums', (array) => {
     return sum(array)
 })
 Handlebars.registerHelper('filter', (array, v) => {
