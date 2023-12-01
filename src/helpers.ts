@@ -3,7 +3,7 @@ import Handlebars from "handlebars";
 import { format } from "d3-format";
 import { min, max, filter, median, mean, sum } from "d3-array";
 
-import { utcFormat, timeFormat } from "d3-time-format";
+import { utcFormat, timeFormat, utcParse } from "d3-time-format";
 
 import { select } from "d3-selection";
 
@@ -91,11 +91,16 @@ Handlebars.registerHelper('format', function (context: unknown, formatString: un
     }
 })
 
+const dateParser = utcParse('%Y-%m-%dT%H:%M:%S.%LZ');
+
 Handlebars.registerHelper('utcFormat', function (context: unknown, formatString: unknown) {
     if (context === null) {
         return 'null';
     }
     if (typeof formatString === 'string') {
+        if (typeof context === 'string') {
+            context = dateParser(context)
+        }
         if (typeof context === 'object' && context instanceof Date) {
             let formatter: (date: Date) => string = null
             if (utcFormats.has(formatString)) {
@@ -167,8 +172,19 @@ Handlebars.registerHelper('median', (array) => {
 Handlebars.registerHelper('sums', (array) => {
     return sum(array)
 })
-Handlebars.registerHelper('filter', (array, v) => {
-    return filter(array, (a) => a === v)
+Handlebars.registerHelper('filter', (array, v, eq: string = '==') => {
+    switch (eq) {
+        case '>':
+            return filter(array, (a) => a > v)
+        case '>=':
+            return filter(array, (a) => a >= v)
+        case '<':
+            return filter(array, (a) => a < v)
+        case '<=':
+            return filter(array, (a) => a <= v)       
+        default:
+            return filter(array, (a) => a === v)
+    }
 })
 
 for (const axisFunc in axisFunctions) {
