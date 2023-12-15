@@ -159,7 +159,14 @@ export const Application: React.FC<ApplicationProps> = () => {
     return (<>
         <>
             <ErrorBoundary>
-                {editMode === powerbi.EditMode.Advanced ?
+                {templateSource.trim() === '' && editMode === powerbi.EditMode.Default ? (
+                    <div className='tutorial'>
+                        <h4>Template is empty</h4>
+                        <p>Read more about the visual in official documentation:</p>
+                        <a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/'>https://ilfat-galiev.im/docs/handelbars-visual/</a>
+                    </div>
+                ) : 
+                editMode === powerbi.EditMode.Advanced ?
                     <div className='import'>
                         <h4>Paste template schema and click on Save for loading</h4>
                         <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
