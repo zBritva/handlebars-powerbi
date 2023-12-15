@@ -19,7 +19,7 @@ import { VisualSettings } from "./settings";
 
 import { Provider } from 'react-redux';
 import { store } from "./redux/store";
-import { setDataView, setHost, setSettings, setViewport } from './redux/slice';
+import { setDataView, setHost, setMode, setSettings, setViewport } from './redux/slice';
 import { deepClone } from './utils';
 
 
@@ -28,8 +28,6 @@ export class Visual implements IVisual {
     private settings: VisualSettings;
     private host: IVisualHost;
     private root: Root;
-
-    private fetchIsDone: boolean = false; 
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
@@ -63,6 +61,7 @@ export class Visual implements IVisual {
     public update(options: VisualUpdateOptions) {
         const dataView = options && options.dataViews && options.dataViews[0];
         this.settings = Visual.parseSettings(dataView);
+        store.dispatch(setMode(options.editMode));
         store.dispatch(setSettings(this.settings));
         store.dispatch(setDataView(deepClone(options.dataViews[0])));
         store.dispatch(setViewport(deepClone(options.viewport)));

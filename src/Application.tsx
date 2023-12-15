@@ -29,6 +29,18 @@ export const Application: React.FC<ApplicationProps> = () => {
     const dataView = useAppSelector((state) => state.options.dataView);
     const viewport = useAppSelector((state) => state.options.viewport);
     const templateSource = useAppSelector((state) => state.options.template);
+    const editMode = useAppSelector((state) => state.options.mode || powerbi.EditMode.Default);
+
+    const [value, setValue] = React.useState<string>(templateSource);
+    const onChangeValue = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setValue(e.target.value)
+    }, [setValue]);
+
+    const onOpenUrl = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {  
+        host.launchUrl((e.target as HTMLElement).getAttribute('href'));
+        e.preventDefault();
+        e.stopPropagation();
+    }, [host]);
 
     // const dispatch = useAppDispatch();
 
@@ -96,8 +108,6 @@ export const Application: React.FC<ApplicationProps> = () => {
         }
     }, [host, table, selectionManager])
 
-    console.log('table.rows.length', table.rows.length)
-
     const content = React.useMemo(() => {
         hardReset()
         Handlebars.unregisterHelper('useColor')
@@ -126,20 +136,54 @@ export const Application: React.FC<ApplicationProps> = () => {
 
     const clean = React.useMemo(() => sanitizeHTML(content), [content, sanitizeHTML])
 
+    const onBackgroundContextMenu = React.useCallback((e: React.MouseEvent) => {
+        selectionManager.showContextMenu(null, {
+            x: e.clientX,
+            y: e.clientY
+        })
+    }, [selectionManager]);
+
+    const onBackgroundClick = React.useCallback((e: React.MouseEvent) => {
+        selectionManager.clear()
+        e.preventDefault()
+    }, [selectionManager]);
+
+    const textarea = React.createRef<HTMLTextAreaElement>();
+    const onSaveClick = React.useCallback((e: React.MouseEvent) => {
+        const template = textarea.current.value
+        console.log(template)
+        e.preventDefault()
+        e.stopPropagation()
+    }, [selectionManager]);
+
     return (<>
         <>
             <ErrorBoundary>
-                <div
-                    style={{
-                        width: viewport.width,
-                        height: viewport.height,
-                        // overflow: 'scroll'
-                    }}
-                    dangerouslySetInnerHTML={{
-                        __html: clean
-                    }}
-                >
-                </div>
+                {editMode === powerbi.EditMode.Advanced ?
+                    <div className='import'>
+                        <h4>Paste template schema and click on Save for loading</h4>
+                        <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
+                        <button className='save' onClick={onSaveClick}>
+                            Save
+                        </button>
+                        <textarea onChange={onChangeValue} value={value}>
+
+                        </textarea>
+                    </div>:
+                    <div
+                        onClick={onBackgroundClick}
+                        onContextMenu={onBackgroundContextMenu}
+                        style={{
+                            width: viewport.width,
+                            height: viewport.height,
+                            // overflow: 'scroll'
+                        }}
+                        dangerouslySetInnerHTML={{
+                            __html: clean
+                        }}
+                    >
+                    </div>
+                }
             </ErrorBoundary>
         </>
     </>)

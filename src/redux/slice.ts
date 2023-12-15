@@ -20,6 +20,7 @@ export interface VisualState {
     dataView: DataView;
     viewport: IViewport;
     template: string;
+    mode: powerbi.EditMode;
 }
 
 const initialState: VisualState = {
@@ -32,7 +33,8 @@ const initialState: VisualState = {
         height: 0,
         width: 0
     },
-    template: ''
+    template: '',
+    mode: powerbi.EditMode.Default
 }
 
 export const slice = createSlice({
@@ -72,11 +74,14 @@ export const slice = createSlice({
                 .concat(state.settings.template.chunk8)
                 .concat(state.settings.template.chunk9)
                 .concat(state.settings.template.chunk10)
-        }  
+        },
+        setMode: (state, action: PayloadAction<powerbi.EditMode>) => {
+            state.mode = action.payload;
+        }
     },
 })
 
 // Action creators are generated for each case reducer function
-export const { setHost, setDataView, setSettings, setViewport } = slice.actions
+export const { setHost, setDataView, setSettings, setViewport, setMode } = slice.actions
 
 export default slice.reducer

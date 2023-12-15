@@ -2,14 +2,14 @@
 {
     "author": {
       "name": "Ilfat Galiev",
-      "email": "ilfat.galiev@zbritva.com"
+      "email": "powerbi@ilfat-galiev.com"
     },
     "visual": {
       "name": "HTML/SVG/Handlebars Visual",
       "displayName": "HTML/SVG/Handlebars Visual",
       "guid": "handlebarsVisual",
       "visualClassName": "Visual",
-      "version": "1.0.1.0",
+      "version": "1.0.2.0",
       "description": "Integrate Handlebars template render into Power BI",
       "supportUrl": "https://github.com/zBritva/echarts-powerbi-docs/issues",
       "gitHubUrl": "https://github.com/zBritva/echarts-powerbi-docs"

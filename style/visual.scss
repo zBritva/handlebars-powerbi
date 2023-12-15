@@ -2,45 +2,18 @@
     margin: 0px;
 }
 
-.toolbar {
-    margin-bottom: 2px;
-    button {
-        margin: 2px;
-    }
-}
-
-.message {
-    font-size: 10px;
-    margin-top: 5px
-}
-
-.docs {
-    font-size: 12px;
-}
-
-.errorView {
-    overflow-y: scroll;
+.import {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: start;
-    align-content: start;
+    align-items: stretch;
 
-    height: 100%;
-
-    .errorHeader {
-        margin: 5px;
+    textarea {
+        flex-grow: 1;
     }
 
-    .error {
-        margin: 10px;
-    }
-
-    .jsonHeader {
-        margin: 5px;
-    }
-
-    .json {
-        margin: 10px;
-        user-select: auto;
+    .save {
+        margin: 5px 0px;
+        max-width: fit-content;
     }
 }
