@@ -185,7 +185,7 @@ export const Application: React.FC<ApplicationProps> = () => {
                         <button className='save' onClick={onSaveClick}>
                             Save
                         </button>
-                        <textarea ref={textareaRef} onChange={onChangeValue} value={value || templateSource}>
+                        <textarea ref={textareaRef} onChange={onChangeValue} value={value}>
 
                         </textarea>
                     </div>:
