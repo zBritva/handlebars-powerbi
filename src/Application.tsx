@@ -148,13 +148,25 @@ export const Application: React.FC<ApplicationProps> = () => {
         e.preventDefault()
     }, [selectionManager]);
 
-    const textarea = React.createRef<HTMLTextAreaElement>();
+    const textareaRef = React.useRef<HTMLTextAreaElement>(null);
     const onSaveClick = React.useCallback((e: React.MouseEvent) => {
-        const template = textarea.current.value
-        console.log(template)
+        const template = textareaRef.current.value
+
+        host.persistProperties({
+            replace: [
+                {
+                    objectName: 'template',
+                    selector: undefined,
+                    properties: {
+                        chunk0: template
+                    }
+                }
+            ]
+        })
+
         e.preventDefault()
         e.stopPropagation()
-    }, [selectionManager]);
+    }, [host, textareaRef]);
 
     return (<>
         <>
@@ -173,7 +185,7 @@ export const Application: React.FC<ApplicationProps> = () => {
                         <button className='save' onClick={onSaveClick}>
                             Save
                         </button>
-                        <textarea onChange={onChangeValue} value={value}>
+                        <textarea ref={textareaRef} onChange={onChangeValue} value={value || templateSource}>
 
                         </textarea>
                     </div>:
