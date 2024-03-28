@@ -72,8 +72,9 @@ export const Application: React.FC<ApplicationProps> = () => {
         })
 
         const selectionHandlers = []
-        clickableElements.forEach(element => {
+        const contextMenuHandlers = []
 
+        clickableElements.forEach(element => {
             const handler = element.addEventListener('click', function (e) {
                 const dataIndex = element.getAttribute('data-index')
                 if (table.rows[dataIndex]) {
@@ -94,13 +95,30 @@ export const Application: React.FC<ApplicationProps> = () => {
                     e.stopPropagation()
                 }
             })
-
             selectionHandlers.push(handler)
+
+            const contextMenuHandler = element.addEventListener('contextmenu', function (e: MouseEvent) {
+                const dataIndex = element.getAttribute('data-index')
+                if (table.rows[dataIndex]) {
+                    const selection = table.rows[dataIndex].selection
+                    selectionManager
+                        .showContextMenu(selection, {
+                            x: e.clientX,
+                            y: e.clientY
+                        });
+                    e.preventDefault()
+                    e.stopPropagation()
+                }
+            });
+            contextMenuHandlers.push(contextMenuHandler)
         })
 
         return () => {
             clickableElements.forEach((element, index) => {
                 element.removeEventListener('click', selectionHandlers[index])
+            })
+            clickableElements.forEach((element, index) => {
+                element.removeEventListener('contextmenu', contextMenuHandlers[index])
             })
             selectionClear.forEach((element, index) => {
                 element.removeEventListener('click', clearHandlers[index])
@@ -141,11 +159,14 @@ export const Application: React.FC<ApplicationProps> = () => {
             x: e.clientX,
             y: e.clientY
         })
+        e.preventDefault()
+        e.stopPropagation()
     }, [selectionManager]);
 
     const onBackgroundClick = React.useCallback((e: React.MouseEvent) => {
         selectionManager.clear()
         e.preventDefault()
+        e.stopPropagation()
     }, [selectionManager]);
 
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);

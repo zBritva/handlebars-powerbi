@@ -12,8 +12,6 @@ const pbivizFile = require(path.join(__dirname, pbivizPath));
 // the visual capabilities content
 const capabilitiesPath = "./capabilities.json";
 
-const { version } = require("../charticulator/package.json");
-
 // babel options to support IE11
 let babelOptions = {
     "presets": [
@@ -44,11 +42,8 @@ let babelOptions = {
 const resolve = {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.css','.json'],
     alias: {
-        charticulator: path.resolve(__dirname, "./../charticulator/"),
         visual: path.resolve(__dirname, './src'),
-        src: path.resolve(__dirname, "../charticulator/src"),
         assets: path.resolve(__dirname, './assets'),
-        resources: path.resolve(__dirname, "../charticulator/resources"),
     },
 };
 
@@ -141,7 +136,6 @@ const externals = {
     "fakeDefine": 'false',
     "corePowerbiObject": "Function('return this.powerbi')()",
     "realWindow": "Function('return this')()",
-    "CHARTICULATOR_PACKAGE": `{version:${version}}`
 };
 const performance = {
     hints: false,
@@ -153,12 +147,6 @@ const plugins = [
     new webpack.SourceMapDevToolPlugin({
         filename: '[name].js.map',
       }),
-    new webpack.DefinePlugin({
-        CHARTICULATOR_PACKAGE: JSON.stringify({
-          version,
-          buildTimestamp: new Date().getTime()
-        })
-    }),
     new ExtraWatchWebpackPlugin({
         files: [
             pbivizPath,
@@ -192,7 +180,7 @@ const devServer = {
 
 const optimization = {
     concatenateModules: true,
-    minimize: false // enable minimization for create *.pbiviz file less than 2 Mb, can be disabled for dev mode
+    minimize: true // enable minimization for create *.pbiviz file less than 2 Mb, can be disabled for dev mode
 };
 
 module.exports = {
