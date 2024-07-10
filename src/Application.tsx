@@ -8,12 +8,16 @@ import { useAppSelector } from './redux/hooks';
 import { convertData, sanitizeHTML } from './utils';
 
 import Handlebars from "handlebars";
+import AceEditor from "react-ace";
+
+import "ace-builds/src-noconflict/mode-handlebars";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 import './helpers';
 import { hardReset } from './helpers';
 
 import { ErrorBoundary } from './Error';
-
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApplicationProps {
@@ -31,9 +35,12 @@ export const Application: React.FC<ApplicationProps> = () => {
     const templateSource = useAppSelector((state) => state.options.template);
     const editMode = useAppSelector((state) => state.options.mode || powerbi.EditMode.Default);
 
+    const [isSaved, setIsSaved] = React.useState<boolean>(true);
     const [value, setValue] = React.useState<string>(templateSource);
-    const onChangeValue = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValue(e.target.value)
+    const onChangeValue = React.useCallback((value: string) => {
+        draft.current = value;
+        setValue(value)
+        setIsSaved(false);
     }, [setValue]);
 
     const onOpenUrl = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {  
@@ -169,9 +176,10 @@ export const Application: React.FC<ApplicationProps> = () => {
         e.stopPropagation()
     }, [selectionManager]);
 
-    const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+    const draft = React.useRef<string>(templateSource);
+
     const onSaveClick = React.useCallback((e: React.MouseEvent) => {
-        const template = textareaRef.current.value
+        const template = draft.current
 
         host.persistProperties({
             replace: [
@@ -187,7 +195,8 @@ export const Application: React.FC<ApplicationProps> = () => {
 
         e.preventDefault()
         e.stopPropagation()
-    }, [host, textareaRef]);
+        setIsSaved(true);
+    }, [host, draft]);
 
     return (<>
         <>
@@ -203,12 +212,26 @@ export const Application: React.FC<ApplicationProps> = () => {
                     <div className='import'>
                         <h4>Paste template schema and click on Save for loading</h4>
                         <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
-                        <button className='save' onClick={onSaveClick}>
-                            Save
-                        </button>
-                        <textarea ref={textareaRef} onChange={onChangeValue} value={value}>
-
-                        </textarea>
+                        <div className='save-bar'>
+                            <button className='save' onClick={onSaveClick}>
+                                Save
+                            </button>
+                            <p className={`saved-notification ${isSaved ? "off" : ""}`}>Changes aren't saved...</p>
+                        </div>
+                        <AceEditor
+                            onChange={onChangeValue}
+                            className="editor"
+                            width="100%"
+                            mode="handlebars"
+                            theme="github"
+                            setOptions={{
+                                useWorker: false,
+                                readOnly: false
+                            }}
+                            value={value}
+                            name="OUTPUT_ID"
+                            editorProps={{ $blockScrolling: true }}
+                        />
                     </div>:
                     <div
                         onClick={onBackgroundClick}

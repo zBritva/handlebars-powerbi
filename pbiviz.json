@@ -9,7 +9,7 @@
       "displayName": "HTML/SVG/Handlebars Visual",
       "guid": "handlebarsVisual",
       "visualClassName": "Visual",
-      "version": "1.0.3.0",
+      "version": "1.0.4.0",
       "description": "Integrate Handlebars template render into Power BI",
       "supportUrl": "https://github.com/zBritva/handlebars-powerbi/issues",
       "gitHubUrl": "https://github.com/zBritva/handlebars-powerbi"
