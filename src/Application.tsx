@@ -64,6 +64,7 @@ export const Application: React.FC<ApplicationProps> = () => {
     React.useEffect(() => {
         const clickableElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection=true],[data-selection=false]')
         const selectionClear = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection-clear=true]')
+        const launchUrlElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-launch-url=true]')
         
         const clearHandlers = []
         selectionClear.forEach(clear => {
@@ -80,6 +81,7 @@ export const Application: React.FC<ApplicationProps> = () => {
 
         const selectionHandlers = []
         const contextMenuHandlers = []
+        const launchUrlHandlers = []
 
         clickableElements.forEach(element => {
             const handler = element.addEventListener('click', function (e) {
@@ -120,6 +122,16 @@ export const Application: React.FC<ApplicationProps> = () => {
             contextMenuHandlers.push(contextMenuHandler)
         })
 
+        launchUrlElements.forEach(element => {
+            const handler = element.addEventListener('click', function (e) {
+                const url = element.getAttribute('data-url')
+                e.preventDefault()
+                e.stopPropagation()
+                host.launchUrl(decodeURIComponent(url))
+            })
+            launchUrlHandlers.push(handler)
+        });
+
         return () => {
             clickableElements.forEach((element, index) => {
                 element.removeEventListener('click', selectionHandlers[index])
@@ -129,6 +141,9 @@ export const Application: React.FC<ApplicationProps> = () => {
             })
             selectionClear.forEach((element, index) => {
                 element.removeEventListener('click', clearHandlers[index])
+            })
+            launchUrlElements.forEach((element, index) => {
+                element.removeEventListener('click', launchUrlHandlers[index])
             })
         }
     }, [host, table, selectionManager])

@@ -315,3 +315,32 @@ Handlebars.registerHelper('math', function (
         return Math[method]
     }
 })
+
+Handlebars.registerHelper('json', (object) => JSON.stringify(object, null, " "));
+
+Handlebars.registerHelper('isNumber', (object) => typeof object === 'number');
+
+Handlebars.registerHelper('isString', (object) => typeof object === "string");
+
+Handlebars.registerHelper('isDate', (object) => typeof object === "string" && dateParser(object) instanceof Date);
+
+Handlebars.registerHelper('launchUrl', function (url: string) {
+    return `data-launch-url=true data-url="${encodeURIComponent(url)}"`;
+})
+
+Handlebars.registerHelper({
+    eq: (v1, v2) => v1 === v2,
+    ne: (v1, v2) => v1 !== v2,
+    lt: (v1, v2) => v1 < v2,
+    gt: (v1, v2) => v1 > v2,
+    lte: (v1, v2) => v1 <= v2,
+    gte: (v1, v2) => v1 >= v2,
+    and() {
+        // eslint-disable-next-line powerbi-visuals/no-banned-terms, prefer-rest-params
+        return Array.prototype.every.call(arguments, Boolean);
+    },
+    or() {
+        // eslint-disable-next-line powerbi-visuals/no-banned-terms, prefer-rest-params
+        return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    }
+});
