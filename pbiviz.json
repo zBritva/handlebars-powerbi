@@ -7,7 +7,7 @@
     "visual": {
       "name": "HTML/SVG/Handlebars Visual",
       "displayName": "HTML/SVG/Handlebars Visual",
-      "guid": "handlebarsVisual",
+      "guid": "handlebarsVisual_DEV",
       "visualClassName": "Visual",
       "version": "1.0.5.0",
       "description": "Integrate Handlebars template render into Power BI",

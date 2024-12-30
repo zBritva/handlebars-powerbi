@@ -18,6 +18,7 @@ import './helpers';
 import { hardReset } from './helpers';
 
 import { ErrorBoundary } from './Error';
+import { Flex, Splitter, Typography } from 'antd';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApplicationProps {
@@ -36,6 +37,8 @@ export const Application: React.FC<ApplicationProps> = () => {
     const editMode = useAppSelector((state) => state.options.mode || powerbi.EditMode.Default);
 
     const [isSaved, setIsSaved] = React.useState<boolean>(true);
+    const [isRaw, setRawView] = React.useState<boolean>(true);
+
     const [value, setValue] = React.useState<string>(templateSource);
     const onChangeValue = React.useCallback((value: string) => {
         draft.current = value;
@@ -43,7 +46,7 @@ export const Application: React.FC<ApplicationProps> = () => {
         setIsSaved(false);
     }, [setValue]);
 
-    const onOpenUrl = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {  
+    const onOpenUrl = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
         host.launchUrl((e.target as HTMLElement).getAttribute('href'));
         e.preventDefault();
         e.stopPropagation();
@@ -65,7 +68,7 @@ export const Application: React.FC<ApplicationProps> = () => {
         const clickableElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection=true],[data-selection=false]')
         const selectionClear = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection-clear=true]')
         const launchUrlElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-launch-url=true]')
-        
+
         const clearHandlers = []
         selectionClear.forEach(clear => {
             const handler = clear.addEventListener('click', (e) => {
@@ -213,6 +216,14 @@ export const Application: React.FC<ApplicationProps> = () => {
         setIsSaved(true);
     }, [host, draft]);
 
+    const onRawClick = React.useCallback(() => {
+        setRawView(true);
+    }, [setRawView]);
+
+    const onPreviewClick = React.useCallback(() => {
+        setRawView(false);
+    }, [setRawView]);
+
     return (<>
         <>
             <ErrorBoundary>
@@ -222,45 +233,76 @@ export const Application: React.FC<ApplicationProps> = () => {
                         <p>Read more about the visual in official documentation:</p>
                         <a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/'>https://ilfat-galiev.im/docs/handelbars-visual/</a>
                     </div>
-                ) : 
-                editMode === powerbi.EditMode.Advanced ?
-                    <div className='import'>
-                        <h4>Paste template schema and click on Save for loading</h4>
-                        <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
-                        <div className='save-bar'>
-                            <button className='save' onClick={onSaveClick}>
-                                Save
-                            </button>
-                            <p className={`saved-notification ${isSaved ? "off" : ""}`}>Changes aren't saved...</p>
-                        </div>
-                        <AceEditor
-                            onChange={onChangeValue}
-                            className="editor"
-                            width="100%"
-                            mode="handlebars"
-                            theme="github"
-                            setOptions={{
-                                useWorker: false,
-                                readOnly: false
+                ) :
+                    editMode === powerbi.EditMode.Advanced ?
+                        <div className='import'>
+                            <h4>Paste template schema and click on Save for loading</h4>
+                            <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
+                            <div className='save-bar'>
+                                <button className='save' onClick={onSaveClick}>
+                                    Save
+                                </button>
+                                <button className='raw' onClick={onRawClick}>
+                                    Raw output
+                                </button>
+                                <button className='preview' onClick={onPreviewClick}>
+                                    Preview
+                                </button>
+                                <p className={`saved-notification ${isSaved ? "off" : ""}`}>Changes aren't saved...</p>
+                            </div>
+                            <Splitter style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+                                <Splitter.Panel defaultSize="40%" min="20%" max="70%">
+                                <AceEditor
+                                    onChange={onChangeValue}
+                                    className="editor"
+                                    width="100%"
+                                    height="100%"
+                                    mode="handlebars"
+                                    theme="github"
+                                    setOptions={{
+                                        useWorker: false,
+                                        readOnly: false
+                                    }}
+                                    value={value}
+                                    name="OUTPUT_ID"
+                                    editorProps={{ $blockScrolling: true }}
+                                />
+                                </Splitter.Panel>
+                                <Splitter.Panel>
+                                    {
+                                        isRaw ? (
+                                            <pre>
+                                                { content}
+                                            </pre>
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%"
+                                                }}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: clean
+                                                }}
+                                            >
+                                            </div>
+                                        )
+                                    }
+                                </Splitter.Panel>
+                            </Splitter>
+                        </div> :
+                        <div
+                            onClick={onBackgroundClick}
+                            onContextMenu={onBackgroundContextMenu}
+                            style={{
+                                width: viewport.width,
+                                height: viewport.height,
+                                // overflow: 'scroll'
                             }}
-                            value={value}
-                            name="OUTPUT_ID"
-                            editorProps={{ $blockScrolling: true }}
-                        />
-                    </div>:
-                    <div
-                        onClick={onBackgroundClick}
-                        onContextMenu={onBackgroundContextMenu}
-                        style={{
-                            width: viewport.width,
-                            height: viewport.height,
-                            // overflow: 'scroll'
-                        }}
-                        dangerouslySetInnerHTML={{
-                            __html: clean
-                        }}
-                    >
-                    </div>
+                            dangerouslySetInnerHTML={{
+                                __html: clean
+                            }}
+                        >
+                        </div>
                 }
             </ErrorBoundary>
         </>

@@ -5,8 +5,8 @@ import VisualConstructorOptions = powerbiVisualsApi.extensibility.visual.VisualC
 import DialogConstructorOptions = powerbiVisualsApi.extensibility.visual.DialogConstructorOptions;
 var powerbiKey: any = "powerbi";
 var powerbi: any = window[powerbiKey];
-var handlebarsVisual: IVisualPlugin = {
-    name: 'handlebarsVisual',
+var handlebarsVisual_DEV: IVisualPlugin = {
+    name: 'handlebarsVisual_DEV',
     displayName: 'HTML/SVG/Handlebars Visual',
     class: 'Visual',
     apiVersion: '5.4.0',
@@ -27,6 +27,6 @@ var handlebarsVisual: IVisualPlugin = {
 if (typeof powerbi !== "undefined") {
     powerbi.visuals = powerbi.visuals || {};
     powerbi.visuals.plugins = powerbi.visuals.plugins || {};
-    powerbi.visuals.plugins["handlebarsVisual"] = handlebarsVisual;
+    powerbi.visuals.plugins["handlebarsVisual_DEV"] = handlebarsVisual_DEV;
 }
-export default handlebarsVisual;
+export default handlebarsVisual_DEV;

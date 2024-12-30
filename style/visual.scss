@@ -28,13 +28,13 @@
         display: none;
     }
 
-    .save {
-        margin: 5px 0px;
+    .save, .raw, .preview {
+        margin: 5px 2px;
         max-width: fit-content;
         background-color: #908be6; /* Green */
         border: none;
         color: white;
-        padding: 10px 24px;
+        padding: 5px 10px;
         text-align: center;
         text-decoration: none;
         display: inline-block;
@@ -52,4 +52,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.editor {
+    height: 100%;
 }
