@@ -224,6 +224,10 @@ export const Application: React.FC<ApplicationProps> = () => {
         setRawView(false);
     }, [setRawView]);
 
+    const onHelp = React.useCallback(() => {
+        host.launchUrl("https://ilfat-galiev.im/docs/category/htmlsvghandlebars-visual");
+    }, [host]);
+
     return (<>
         <>
             <ErrorBoundary>
@@ -247,6 +251,9 @@ export const Application: React.FC<ApplicationProps> = () => {
                                 </button>
                                 <button className='preview' onClick={onPreviewClick}>
                                     Preview
+                                </button>
+                                <button className='help' onClick={onHelp}>
+                                    Help
                                 </button>
                                 <p className={`saved-notification ${isSaved ? "off" : ""}`}>Changes aren't saved...</p>
                             </div>
@@ -296,7 +303,6 @@ export const Application: React.FC<ApplicationProps> = () => {
                             style={{
                                 width: viewport.width,
                                 height: viewport.height,
-                                // overflow: 'scroll'
                             }}
                             dangerouslySetInnerHTML={{
                                 __html: clean
