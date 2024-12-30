@@ -18,7 +18,9 @@ import './helpers';
 import { hardReset } from './helpers';
 
 import { ErrorBoundary } from './Error';
-import { Flex, Splitter, Typography } from 'antd';
+import { Splitter, Button } from 'antd';
+
+import JSON5 from 'json5'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ApplicationProps {
@@ -40,6 +42,29 @@ export const Application: React.FC<ApplicationProps> = () => {
     const [isRaw, setRawView] = React.useState<boolean>(true);
 
     const [value, setValue] = React.useState<string>(templateSource);
+    console.log('value', value);
+
+    const configPart = React.useMemo(() => {
+        const configParser = /( )*<!--((.*)|[^<]*|[^!]*|[^-]*|[^>]*)-->\n*/g;
+        const config = configParser.exec(value);
+        if (config.length && config[2]) {
+            return config[2];
+        } else {
+            return "{}";
+        }
+    }, [value]);
+
+    const config = React.useMemo(() => {
+        try {
+            return JSON5.parse(configPart.replace(/\n/g, ''));
+        }
+        catch (ex) {
+            return {
+                error: ex.Message
+            }
+        }
+    }, [configPart]);
+
     const onChangeValue = React.useCallback((value: string) => {
         draft.current = value;
         setValue(value)
@@ -62,7 +87,7 @@ export const Application: React.FC<ApplicationProps> = () => {
         return Handlebars.compile(templateSource);
     }, [templateSource]);
 
-    const table = React.useMemo(() => convertData(dataView, host), [dataView, convertData, host])
+    const table = React.useMemo(() => convertData(dataView, config, host), [dataView, convertData, host])
 
     React.useEffect(() => {
         const clickableElements = document.querySelectorAll<HTMLElement | SVGElement>('[data-selection=true],[data-selection=false]')
@@ -243,43 +268,43 @@ export const Application: React.FC<ApplicationProps> = () => {
                             <h4>Paste template schema and click on Save for loading</h4>
                             <p>or use alternative editor (<a onClick={onOpenUrl} href='https://ilfat-galiev.im/docs/handelbars-visual/step-by-step'>Power BI Visual Editor</a>) with syntax highlight</p>
                             <div className='save-bar'>
-                                <button className='save' onClick={onSaveClick}>
+                                <Button className='save' onClick={onSaveClick} type='primary'>
                                     Save
-                                </button>
-                                <button className='raw' onClick={onRawClick}>
+                                </Button>
+                                <Button className='raw' onClick={onRawClick}>
                                     Raw output
-                                </button>
-                                <button className='preview' onClick={onPreviewClick}>
+                                </Button>
+                                <Button className='preview' onClick={onPreviewClick}>
                                     Preview
-                                </button>
-                                <button className='help' onClick={onHelp}>
+                                </Button>
+                                <Button className='help' onClick={onHelp}>
                                     Help
-                                </button>
+                                </Button>
                                 <p className={`saved-notification ${isSaved ? "off" : ""}`}>Changes aren't saved...</p>
                             </div>
                             <Splitter style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
                                 <Splitter.Panel defaultSize="40%" min="20%" max="70%">
-                                <AceEditor
-                                    onChange={onChangeValue}
-                                    className="editor"
-                                    width="100%"
-                                    height="100%"
-                                    mode="handlebars"
-                                    theme="github"
-                                    setOptions={{
-                                        useWorker: false,
-                                        readOnly: false
-                                    }}
-                                    value={value}
-                                    name="OUTPUT_ID"
-                                    editorProps={{ $blockScrolling: true }}
-                                />
+                                    <AceEditor
+                                        onChange={onChangeValue}
+                                        className="editor"
+                                        width="100%"
+                                        height="100%"
+                                        mode="handlebars"
+                                        theme="github"
+                                        setOptions={{
+                                            useWorker: false,
+                                            readOnly: false
+                                        }}
+                                        value={value}
+                                        name="OUTPUT_ID"
+                                        editorProps={{ $blockScrolling: true }}
+                                    />
                                 </Splitter.Panel>
                                 <Splitter.Panel>
                                     {
                                         isRaw ? (
                                             <pre>
-                                                { content}
+                                                {content}
                                             </pre>
                                         ) : (
                                             <div

@@ -166,7 +166,9 @@ export function walk(key: string, tree: Record<string, unknown | unknown[]> | un
 }
 
 
-export function convertData(dataView: DataView, host?: IVisualHost): Table {
+export function convertData(dataView: DataView, config: {
+    aliases: Record<string, string>
+}, host?: IVisualHost): Table {
     const table: Table = {
         rows: [],
         columns: []
@@ -174,6 +176,12 @@ export function convertData(dataView: DataView, host?: IVisualHost): Table {
 
     if (!dataView || !dataView.table) {
         return table
+    }
+
+    if (!config.aliases) {
+        config.aliases = {
+
+        }
     }
 
     const dateParse = utcParse('%Y-%m-%dT%H:%M:%S.%LZ');
@@ -188,9 +196,9 @@ export function convertData(dataView: DataView, host?: IVisualHost): Table {
         };
         dataView.table.columns.forEach((col, index) => {
             if (col.type.dateTime || col.type.temporal) {
-                row[col.displayName] = dateParse(data[index] as string);
+                row[config.aliases[col.displayName] ?? col.displayName] = dateParse(data[index] as string);
             } else {
-                row[col.displayName] = data[index];
+                row[config.aliases[col.displayName] ?? col.displayName] = data[index];
             }
         })
 
@@ -198,7 +206,7 @@ export function convertData(dataView: DataView, host?: IVisualHost): Table {
     })
 
     table.columns = dataView.table.columns.map(c => ({
-        displayName: c.displayName,
+        displayName: config.aliases[c.displayName] ?? c.displayName,
         index: c.index
     }))
 

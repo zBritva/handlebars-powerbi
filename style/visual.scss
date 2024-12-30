@@ -31,13 +31,13 @@
     .save, .raw, .preview, .help {
         margin: 5px 2px;
         max-width: fit-content;
-        background-color: #908be6; /* Green */
-        border: none;
-        color: white;
-        padding: 5px 10px;
+        // background-color: #908be6; /* Green */
+        // border: none;
+        // color: white;
+        // padding: 5px 10px;
         text-align: center;
         text-decoration: none;
-        display: inline-block;
+        // display: inline-block;
         font-size: 16px;
     }
     
@@ -56,4 +56,8 @@
 
 .editor {
     height: 100%;
+}
+
+.displayName {
+    margin-right: 5px;
 }
