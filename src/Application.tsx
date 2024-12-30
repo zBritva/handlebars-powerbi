@@ -44,10 +44,16 @@ export const Application: React.FC<ApplicationProps> = () => {
     const [value, setValue] = React.useState<string>(templateSource);
     console.log('value', value);
 
+    React.useEffect(() => {
+        if (value.trim() == "" && templateSource.trim() != "") {
+            setValue(templateSource);
+        }
+    }, [value, templateSource]);
+
     const configPart = React.useMemo(() => {
         const configParser = /( )*<!--((.*)|[^<]*|[^!]*|[^-]*|[^>]*)-->\n*/g;
         const config = configParser.exec(value);
-        if (config.length && config[2]) {
+        if (config && config.length && config[2]) {
             return config[2];
         } else {
             return "{}";
@@ -304,7 +310,7 @@ export const Application: React.FC<ApplicationProps> = () => {
                                     {
                                         isRaw ? (
                                             <pre>
-                                                {content}
+                                                {content?.trim()}
                                             </pre>
                                         ) : (
                                             <div
