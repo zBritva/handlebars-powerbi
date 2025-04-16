@@ -191,7 +191,7 @@ export const Application: React.FC<ApplicationProps> = () => {
                 element.removeEventListener('click', launchUrlHandlers[index])
             })
         }
-    }, [host, table, selectionManager])
+    }, [host, table, selectionManager, editMode])
 
     const content = React.useMemo(() => {
         hardReset()
