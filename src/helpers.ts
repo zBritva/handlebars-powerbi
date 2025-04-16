@@ -284,6 +284,13 @@ Handlebars.registerHelper('multiply', function (
     return a * b
 })
 
+Handlebars.registerHelper('multiply', function(value, multiplier, contextValue) {
+    if (typeof value === 'number' && typeof multiplier === 'number') {
+      return (value / contextValue) * multiplier;
+    }
+    return 0; // Default fallback for invalid inputs
+  });
+
 Handlebars.registerHelper('divide', function (
     a: number,
     b: number

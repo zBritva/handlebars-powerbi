@@ -118,12 +118,12 @@ export const Application: React.FC<ApplicationProps> = () => {
         const launchUrlHandlers = []
 
         clickableElements.forEach(element => {
-            const handler = element.addEventListener('click', function (e) {
+            const handler = element.addEventListener('click', function (e: MouseEvent) {
                 const dataIndex = element.getAttribute('data-index')
                 if (table.rows[dataIndex]) {
                     const selection = table.rows[dataIndex].selection
                     selectionManager
-                        .select(selection)
+                        .select(selection, e.ctrlKey)
                         .then(selections => {
                             if (selections.length === 0) {
                                 clickableElements.forEach(e => e.setAttribute('data-selection', 'true'))
@@ -131,7 +131,18 @@ export const Application: React.FC<ApplicationProps> = () => {
                                 // reset all
                                 clickableElements.forEach(e => e.setAttribute('data-selection', 'false'))
                                 // set selected
-                                element.setAttribute('data-selection', 'true')
+
+                                // element.setAttribute('data-selection', 'true')
+                                selections.forEach(selection => {
+                                    const selectedIndexes = table.rows.map((r, i) => ({r, i})).filter(r => r.r.selection == selection).map(i => i.i);
+                                    selectedIndexes.forEach(idx => {
+                                        const element = document
+                                            .querySelector<HTMLElement | SVGElement>(`[data-index="${idx}"]`)
+                                            if (element) {
+                                                element.setAttribute('data-selection', 'true')
+                                            }
+                                    })
+                                })
                             }
                         })
                     e.preventDefault()
